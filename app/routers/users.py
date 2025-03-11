@@ -4,6 +4,11 @@ from app.core.database import SessionLocal, engine
 from app.models.user import User
 from app.core.security import get_password_hash, create_access_token, verify_password
 from pydantic import BaseModel
+from app.models.place import Place
+from app.schemas.place import PlaceResponse
+from app.schemas.user import UserResponse
+from app.core.security import get_current_user
+
 
 router = APIRouter()
 
@@ -50,3 +55,15 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
 
     token = create_access_token(db_user.username)
     return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/places", response_model=list[PlaceResponse])
+def get_user_places(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Place).filter(Place.owner_id == current_user.id).all()
+
+@router.get("/me", response_model=UserResponse)
+async def get_user_info(current_user: User = Depends(get_current_user)):
+    print(current_user.__dict__)  # Логируем
+    return current_user

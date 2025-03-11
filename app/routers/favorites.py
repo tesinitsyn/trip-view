@@ -24,6 +24,16 @@ def get_favorites(user: User = Depends(get_current_user), db: Session = Depends(
     places = db.query(Place).filter(Place.id.in_(place_ids)).all()
     return places  # Теперь FastAPI корректно сериализует объекты
 
+@router.post("/")
+def add_favorite(place_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_place = db.query(Place).filter(Place.id == place_id).first()
+    if not db_place:
+        raise HTTPException(status_code=404, detail="Place not found")
+
+    favorite = Favorite(user_id=user.id, place_id=place_id)
+    db.add(favorite)
+    db.commit()
+    return {"message": "Place added to favorites"}
 
 @router.delete("/{place_id}")
 def remove_favorite(place_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):

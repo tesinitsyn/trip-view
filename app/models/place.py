@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from app.core.database import Base
 
 class Place(Base):
@@ -9,3 +9,5 @@ class Place(Base):
     description = Column(String)
     location = Column(String)
     image_url = Column(String)
+    owner_id = Column(Integer, ForeignKey("users.id"))  # Привязываем к пользователю
+
