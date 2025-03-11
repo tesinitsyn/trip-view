@@ -1,7 +1,12 @@
 from fastapi import FastAPI
-from routers import users, places, favorites
+from app.routers import users, places, favorites
+from app.core.database import engine
+from app.models import Base  # Импортируем все модели через __init__.py
 
 app = FastAPI()
+
+# Создаём таблицы, если их нет
+Base.metadata.create_all(bind=engine)
 
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(places.router, prefix="/places", tags=["Places"])
